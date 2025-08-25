@@ -24,7 +24,7 @@ server.on("upgrade", (req, socket, head) => {
 
 // Ruta GET raíz (solo devuelve texto)
 app.get("/", (req, res) => {
-  res.send("By DANAELSSH t.me/danaelssh");
+  res.send("SUB-ZERO");
 });
 
 // Puerto de escucha (por defecto 8080)
