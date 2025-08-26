@@ -10,14 +10,14 @@ const server = net.createServer(socket => {
 
     // 🔑 Forzar el banner en el status line
     const response = [
-      'HTTP/1.1 101 <font color="#00FFFF">𝑆𝑈𝐵-𝑍𝐸𝑅𝑂</font>',
+      'HTTP/1.1 200 <font color="#00FFFF">𝑆𝑈𝐵-𝑍𝐸𝑅𝑂</font>',
       'Upgrade: websocket',
       'Connection: Upgrade',
       '\r\n'
     ].join('\r\n');
 
     console.log('📤 Enviando respuesta 101 con banner forzado');
-    //socket.write(response);
+    socket.write(response);
 
     // Conexión al servidor SSH
     const ssh = net.connect({ host: '5.34.178.42', port: 22 }, () => {
