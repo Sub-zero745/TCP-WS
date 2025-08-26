@@ -17,7 +17,7 @@ const server = net.createServer(socket => {
     ].join('\r\n');
 
     console.log('📤 Enviando respuesta 101 con banner forzado');
-    socket.write(response);
+    //socket.write(response);
 
     // Conexión al servidor SSH
     const ssh = net.connect({ host: '5.34.178.42', port: 22 }, () => {
