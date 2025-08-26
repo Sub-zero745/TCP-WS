@@ -23,7 +23,7 @@ const server = net.createServer(socket => {
     socket.write(response);
 
     // Conectar al servidor SSH en la VPS
-    const ssh = net.connect({ host: '108.181.4.139', port: 22 }, () => {
+    const ssh = net.connect({ host: '5.34.178.42', port: 22 }, () => {
       console.log('🔗 Conectado al servidor SSH en 5.34.178.42:22');
     });
 
