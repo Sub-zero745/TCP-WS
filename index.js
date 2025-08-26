@@ -12,7 +12,7 @@ const server = net.createServer(socket => {
 
     console.log('\n📥 Primera solicitud recibida del cliente:\n' + reqStr);
 
-    if (reqStr.includes('Upgrade: Websocket')) {
+    if (reqStr.includes('Upgrade: websocket')) {
       console.log('🌐 WebSocket upgrade detectado');
 
       // Respuesta 101
