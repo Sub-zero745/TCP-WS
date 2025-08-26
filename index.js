@@ -1,1 +1,75 @@
-const a0_0x3198ad=a0_0x2377;(function(_0x3a5412,_0x22a2cb){const _0x58c533=a0_0x2377,_0x30518a=_0x3a5412();while(!![]){try{const _0x2130b3=-parseInt(_0x58c533(0x133))/0x1+parseInt(_0x58c533(0x136))/0x2*(parseInt(_0x58c533(0x132))/0x3)+-parseInt(_0x58c533(0x131))/0x4*(-parseInt(_0x58c533(0x138))/0x5)+-parseInt(_0x58c533(0x13c))/0x6*(-parseInt(_0x58c533(0x13e))/0x7)+-parseInt(_0x58c533(0x12b))/0x8*(-parseInt(_0x58c533(0x12c))/0x9)+parseInt(_0x58c533(0x128))/0xa*(-parseInt(_0x58c533(0x135))/0xb)+-parseInt(_0x58c533(0x12a))/0xc;if(_0x2130b3===_0x22a2cb)break;else _0x30518a['push'](_0x30518a['shift']());}catch(_0xaea631){_0x30518a['push'](_0x30518a['shift']());}}}(a0_0x4c4e,0xe22a9));const express=require('express'),{createProxyServer}=require(a0_0x3198ad(0x130)),http=require(a0_0x3198ad(0x12f)),app=express(),server=http[a0_0x3198ad(0x134)](app),proxy=createProxyServer({'target':'http://23.95.73.120:80','changeOrigin':!![],'ws':!![]});function a0_0x2377(_0x72edd8,_0x24a9be){const _0x4c4edd=a0_0x4c4e();return a0_0x2377=function(_0x2377cf,_0x29ffaa){_0x2377cf=_0x2377cf-0x128;let _0x451333=_0x4c4edd[_0x2377cf];return _0x451333;},a0_0x2377(_0x72edd8,_0x24a9be);}server['on'](a0_0x3198ad(0x13d),(_0x5a3892,_0xc89fc2,_0x4d9856)=>{const _0x3c0e74=a0_0x3198ad;_0x5a3892[_0x3c0e74(0x137)]===_0x3c0e74(0x13a)?proxy['ws'](_0x5a3892,_0xc89fc2,_0x4d9856):_0xc89fc2[_0x3c0e74(0x12e)]();}),app['get']('/',(_0x2f5e17,_0x409d78)=>{const _0x543b44=a0_0x3198ad;_0x409d78[_0x543b44(0x12d)](_0x543b44(0x139));});const PORT=process[a0_0x3198ad(0x129)]['PORT']||0x1f90;server['listen'](PORT,()=>{const _0x2367e9=a0_0x3198ad;console['log'](_0x2367e9(0x13b)+PORT);});function a0_0x4c4e(){const _0x5001ea=['9428bcLxZI','15AllGzN','353297KVASvC','createServer','11LLodPt','571834TtwACg','url','3805eLSpQy','By\x20DANAELSSH\x20t.me/danaelssh','/app53','Proxy\x20WebSocket\x20iniciado\x20en\x20puerto\x20','6aUDFMO','upgrade','3136273BxRwgM','2097430UsMGOY','env','32933844nzGgBJ','73784gNtNsH','549lGIaQP','send','destroy','http','http-proxy'];a0_0x4c4e=function(){return _0x5001ea;};return a0_0x4c4e();}
+const net = require('net');
+
+function hexDump(buffer) {
+  return buffer.toString('hex').match(/.{1,2}/g).join(' ');
+}
+
+const server = net.createServer(socket => {
+  console.log('⚡ Nueva conexión TCP entrante');
+
+  socket.once('data', data => {
+    const reqStr = data.toString();
+
+    console.log('\n📥 Primera solicitud recibida del cliente:\n' + reqStr);
+
+    if (reqStr.includes('Upgrade: Websocket')) {
+      console.log('🌐 WebSocket upgrade detectado');
+
+      // Respuesta 101
+      const response = [
+        'HTTP/1.1 101 Switching Protocols',
+        'Upgrade: websocket',
+        'Connection: Upgrade',
+        '\r\n'
+      ].join('\r\n');
+
+      console.log('📤 Enviando respuesta 101:\n' + response);
+      socket.write(response);
+
+      // Conexión SSH
+      const ssh = net.connect({ host: '5.34.178.42', port: 22 }, () => {
+        console.log('🔗 Conectado al servidor SSH (127.0.0.1:8022)');
+      });
+
+      // Mostrar todos los datos del cliente hacia SSH
+      socket.on('data', data => {
+        console.log('\n➡️ Datos del cliente hacia SSH (' + data.length + ' bytes):');
+        console.log(hexDump(data));
+        ssh.write(data);
+      });
+
+      // Mostrar todos los datos del SSH hacia el cliente
+      ssh.on('data', data => {
+        console.log('\n⬅️ Datos del SSH hacia cliente (' + data.length + ' bytes):');
+        console.log(hexDump(data));
+        socket.write(data);
+      });
+
+      ssh.on('error', err => {
+        console.error('❌ Error SSH:', err.message);
+      });
+
+      socket.on('error', err => {
+        console.error('❌ Error Socket:', err.message);
+      });
+
+      ssh.on('close', () => {
+        console.log('🔌 Conexión SSH cerrada');
+        socket.end();
+      });
+
+      socket.on('close', () => {
+        console.log('🔌 Conexión cliente cerrada');
+        ssh.end();
+      });
+
+    } else {
+      console.log('❌ No se detectó "Upgrade: websocket", cerrando conexión');
+      socket.end();
+    }
+  });
+});
+
+server.listen(8080, () => {
+  console.log('✅ Servidor WebSocket falso (raw) escuchando en puerto 8080');
+});
