@@ -1,53 +1,70 @@
-
 const net = require('net');
 
 const server = net.createServer(socket => {
-  console.log('⚡ Nueva conexión TCP entrante');
+  console.log('⚡️ Nueva conexión TCP entrante');
+    
+   const PORT = 22;
+   const IP = '5.34.178.42';
 
-  socket.once('data', data => {
-    const reqStr = data.toString();
-    console.log('\n📥 Primera solicitud recibida del cliente:\n' + reqStr);
+  // Conexión al servidor SSH
+  const ssh = net.connect({ host: IP, port: PORT }, () => {
+    console.log('🔗 Conectado al servidor SSH en ' + IP + ':' + PORT);
+  });
 
-    // 🔑 Forzar el banner en el status line
-    const response = [
-      'HTTP/1.1 101 <font color="#00FFFF">𝑆𝑈𝐵-𝑍𝐸𝑅𝑂</font>',
-      'Upgrade: websocket',
-      'Connection: Upgrade',
-      '\r\n'
-    ].join('\r\n');
+  // Enviar HTTP 101 al cliente inmediatamente
+  const banner = [
+    'HTTP/1.1 101 Switching Protocols',
+    'Upgrade: websocket',
+    'Connection: Upgrade',
+    '\r\n'
+  ].join('\r\n');
+  socket.write(banner);
+  console.log('📤 Enviado HTTP 101 al cliente');
 
-    console.log('📤 Enviando respuesta 101 con banner forzado');
-    socket.write(response);
+  let firstPacketHandled = false;
 
-    // Conexión al servidor SSH
-    const ssh = net.connect({ host: '5.34.178.42', port: 22 }, () => {
-      console.log('🔗 Conectado al servidor SSH en 5.34.178.42:22');
-    });
+  // Datos del cliente -> servidor SSH
+  socket.on('data', data => {
+    if (!firstPacketHandled) {
+      // Detectar si este primer paquete contiene SSH-2
+      const str = data.toString();
+      const sshIndex = str.indexOf('SSH-2.0');
 
-    // Reenvío transparente sin logs de tráfico
-    socket.pipe(ssh);
-    ssh.pipe(socket);
+      if (sshIndex !== -1) {
+        const sshPart = str.slice(sshIndex); // enviar solo la parte SSH
+        console.log('📤 Reenviando primer paquete válido SSH al servidor');
+        ssh.write(sshPart);
+      } else {
+        console.log('📤 Primer paquete no es SSH, no se reenvía al servidor');
+      }
 
-    ssh.on('error', err => {
-      console.error('❌ Error SSH:', err.message);
-    });
+      firstPacketHandled = true;
+    } else {
+      ssh.write(data); // reenviar paquetes posteriores normalmente
+    }
+  });
 
-    socket.on('error', err => {
-      console.error('❌ Error Socket:', err.message);
-    });
+  // Datos del servidor SSH -> cliente
+  ssh.on('data', data => {
+    socket.write(data); // reenviar al cliente
+  });
 
-    ssh.on('close', () => {
-      console.log('🔌 Conexión SSH cerrada');
-      socket.end();
-    });
+  // Manejo de errores
+  socket.on('error', e => console.error('Client error:', e.message));
+  ssh.on('error', e => console.error('Server error:', e.message));
 
-    socket.on('close', () => {
-      console.log('🔌 Conexión cliente cerrada');
-      ssh.end();
-    });
+  // Cierre de conexiones
+  socket.on('close', () => {
+    console.log('🔌 Conexión con el cliente cerrada');
+    ssh.end();
+  });
+
+  ssh.on('close', () => {
+    console.log('🔌 Conexión con el servidor SSH cerrada');
+    socket.end();
   });
 });
 
 server.listen(8080, () => {
-  console.log('✅ Servidor proxy escuchando en puerto 8080 (responde con banner en el status line)');
+  console.log('✅ Servidor proxy escuchando en puerto 8080');
 });
