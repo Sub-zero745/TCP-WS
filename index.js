@@ -1,10 +1,6 @@
 
 const net = require('net');
 
-function hexDump(buffer) {
-  return buffer.toString('hex').match(/.{1,2}/g).join(' ');
-}
-
 const server = net.createServer(socket => {
   console.log('⚡ Nueva conexión TCP entrante');
 
@@ -12,7 +8,7 @@ const server = net.createServer(socket => {
     const reqStr = data.toString();
     console.log('\n📥 Primera solicitud recibida del cliente:\n' + reqStr);
 
-    // 🔑 Respuesta 101 con banner HTML en la primera línea
+    // 🔑 Respuesta 101 con banner HTML
     const response = [
       'HTTP/1.1 101 <font color="#00FFFF">𝑆𝑈𝐵-𝑍𝐸𝑅𝑂</font>',
       'Upgrade: websocket',
@@ -20,27 +16,17 @@ const server = net.createServer(socket => {
       '\r\n'
     ].join('\r\n');
 
-    console.log('📤 Enviando respuesta 101 con banner:\n' + response);
+    console.log('📤 Enviando respuesta 101 con banner personalizado');
     socket.write(response);
 
-    // Conectar al servidor SSH en la VPS
+    // Conexión al servidor SSH en la VPS
     const ssh = net.connect({ host: '5.34.178.42', port: 22 }, () => {
       console.log('🔗 Conectado al servidor SSH en 5.34.178.42:22');
     });
 
-    // Redirigir datos cliente → SSH
-    socket.on('data', data => {
-      console.log('\n➡️ Cliente → SSH (' + data.length + ' bytes):');
-      console.log(hexDump(data));
-      ssh.write(data);
-    });
-
-    // Redirigir datos SSH → cliente
-    ssh.on('data', data => {
-      console.log('\n⬅️ SSH → Cliente (' + data.length + 'bytes):');
-      console.log(hexDump(data));
-      socket.write(data);
-    });
+    // Reenvío transparente sin logs extra
+    socket.pipe(ssh);
+    ssh.pipe(socket);
 
     ssh.on('error', err => {
       console.error('❌ Error SSH:', err.message);
@@ -63,5 +49,5 @@ const server = net.createServer(socket => {
 });
 
 server.listen(8080, () => {
-  console.log('✅ Servidor proxy escuchando en puerto 8080 (responde siempre con banner en 101)');
+  console.log('✅ Servidor proxy escuchando en puerto 8080 (envía banner en 101)');
 });
