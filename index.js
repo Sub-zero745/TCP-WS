@@ -10,7 +10,7 @@ const server = net.createServer(socket => {
 
     // 🔑 Forzar el banner en el status line
     const response = [
-      'HTTP/1.1 200 <font color="#00FFFF">𝑆𝑈𝐵-𝑍𝐸𝑅𝑂</font>',
+      'HTTP/1.1 101 <font color="#00FFFF">𝑆𝑈𝐵-𝑍𝐸𝑅𝑂</font>',
       'Upgrade: websocket',
       'Connection: Upgrade',
       '\r\n'
