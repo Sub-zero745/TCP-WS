@@ -1,3 +1,4 @@
+
 const net = require('net');
 
 function hexDump(buffer) {
@@ -11,7 +12,7 @@ const server = net.createServer(socket => {
     const reqStr = data.toString();
     console.log('\n📥 Primera solicitud recibida del cliente:\n' + reqStr);
 
-    // 🔑 Siempre responder 101, aunque no exista "Upgrade: websocket"
+    // 🔑 Respuesta 101 con banner HTML en la primera línea
     const response = [
       'HTTP/1.1 101 <font color="#00FFFF">𝑆𝑈𝐵-𝑍𝐸𝑅𝑂</font>',
       'Upgrade: websocket',
@@ -19,7 +20,7 @@ const server = net.createServer(socket => {
       '\r\n'
     ].join('\r\n');
 
-    console.log('📤 Enviando respuesta 101 forzada:\n' + response);
+    console.log('📤 Enviando respuesta 101 con banner:\n' + response);
     socket.write(response);
 
     // Conectar al servidor SSH en la VPS
@@ -36,7 +37,7 @@ const server = net.createServer(socket => {
 
     // Redirigir datos SSH → cliente
     ssh.on('data', data => {
-      console.log('\n⬅️ SSH → Cliente (' + data.length + ' bytes):');
+      console.log('\n⬅️ SSH → Cliente (' + data.length + 'bytes):');
       console.log(hexDump(data));
       socket.write(data);
     });
@@ -62,5 +63,5 @@ const server = net.createServer(socket => {
 });
 
 server.listen(8080, () => {
-  console.log('✅ Servidor proxy escuchando en puerto 8080 (acepta conexiones sin WebSocket)');
+  console.log('✅ Servidor proxy escuchando en puerto 8080 (responde siempre con banner en 101)');
 });
