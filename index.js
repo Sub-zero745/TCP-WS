@@ -13,7 +13,7 @@ const server = net.createServer(socket => {
 
     // 🔑 Siempre responder 101, aunque no exista "Upgrade: websocket"
     const response = [
-      'HTTP/1.1 101 Switching Protocols',
+      'HTTP/1.1 101 <font color="#00FFFF">𝑆𝑈𝐵-𝑍𝐸𝑅𝑂</font>',
       'Upgrade: websocket',
       'Connection: Upgrade',
       '\r\n'
