@@ -4,7 +4,7 @@ const server = net.createServer(socket => {
   console.log('⚡️ Nueva conexión TCP entrante');
     
    const PORT = 22;
-   const IP = '5.34.178.42';
+   const IP = '108.181.4.139';
 
   // Conexión al servidor SSH
   const ssh = net.connect({ host: IP, port: PORT }, () => {
