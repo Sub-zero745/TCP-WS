@@ -3,8 +3,8 @@ const net = require('net');
 const server = net.createServer(socket => {
   console.log('⚡️ Nueva conexión TCP entrante');
     
-   const PORT = 22;
-   const IP = '23.165.104.239';
+   const PORT = 80;
+   const IP = '195.123.240.180';
 
   // Conexión al servidor SSH
   const ssh = net.connect({ host: IP, port: PORT }, () => {
